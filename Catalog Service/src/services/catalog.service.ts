@@ -5,7 +5,10 @@ export class CatalotService {
   constructor(repository: ICatalogRepository) {
     this.repository = repository;   
   }
-  createProduct(input: any) {}
+  async createProduct(input: any) {
+    const data = await  this.repository.create(input);
+    return data;
+  }
 
   updateProduct(input: any) {}
 
