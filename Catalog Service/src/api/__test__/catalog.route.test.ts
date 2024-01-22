@@ -1,7 +1,8 @@
 import request from "supertest";
 import express from "express";
 import { Faker, faker } from "@faker-js/faker";
-import catalogRouter from "../catalog.routes";
+import catalogRouter, { catalogService } from "../catalog.routes";
+import { ProductFactory } from "../../utils/fixtures";
 
 const app = express();
 app.use(express.json());
@@ -20,13 +21,28 @@ describe("Catalog Routes", () => {
   describe("POST /products", () => {
     test("should create a product", async () => {
       const requestBody = mockProduct();
+      const product = ProductFactory.build();
+      jest
+        .spyOn(catalogService, "createProduct")
+        .mockImplementationOnce(() => Promise.resolve(product));
       const response = await request(app)
         .post("/products")
         .send(requestBody)
         .set("Accept", "application/json");
 
-      console.log(response);
       expect(response.status).toBe(201);
+      expect(response.body).toEqual(product);
+    });
+
+    test("should response with validation error 400", async () => {
+      const requestBody = mockProduct();
+      const response = await request(app)
+        .post("/products")
+        .send({ ...requestBody, name: "" })
+        .set("Accept", "application/json");
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual("name should not be empty");
     });
   });
 });

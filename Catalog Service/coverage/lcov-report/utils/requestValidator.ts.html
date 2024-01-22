@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for api/catalog.routes.ts</title>
+    <title>Code coverage report for utils/requestValidator.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../index.html">All files</a> / <a href="index.html">api</a> catalog.routes.ts</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">utils</a> requestValidator.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>24/24</span>
+                <span class='fraction'>31/31</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>24/24</span>
+                <span class='fraction'>31/31</span>
             </div>
         
             
@@ -87,13 +87,23 @@
 <a name='L22'></a><a href='#L22'>22</a>
 <a name='L23'></a><a href='#L23'>23</a>
 <a name='L24'></a><a href='#L24'>24</a>
-<a name='L25'></a><a href='#L25'>25</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -105,36 +115,47 @@
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import express, { NextFunction, Request, Response } from "express";
-import { CatalotService } from "../services/catalog.service";
-import { CatalogRepository } from "../repository/catalog.repository";
-import { RequestValidator } from "../utils/requestValidator";
-import { CreateProductRequest } from "../dto/product.dto";
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { ValidationError, validate } from "class-validator";
+import { ClassConstructor, plainToClass } from "class-transformer";
 &nbsp;
-const router = express.Router();
-&nbsp;
-export const catalogService = new CatalotService(new CatalogRepository());
-&nbsp;
-router.post(
-  "/products",
-  async (req: Request, res: Response, next: NextFunction) =&gt; {
-    const { errors, input } = await RequestValidator(
-      CreateProductRequest,
-      req.body
-    );
-    if (errors) return res.status(400).json( errors );
-    const data = await catalogService.createProduct(input);
-    return res.status(201).json(data);
+const validationError = async (
+  input: any
+): Promise&lt;ValidationError[] | false&gt; =&gt; {
+  const errors = await validate(input, {
+    validationError: { target: false },
+  });
+  if (errors.length) {
+    return errors;
   }
-);
+  return false;
+};
 &nbsp;
-export default router;
+export const RequestValidator = async &lt;T&gt;(
+  type: ClassConstructor&lt;T&gt;,
+  body: any
+): Promise&lt;{ errors: boolean | string; input: T }&gt; =&gt; {
+  const input = plainToClass(type, body);
+  const errors = await validationError(input);
+  if (errors) {
+    const errorMessage = errors
+      .map((error: ValidationError) =&gt;
+        (Object as any).values(error.constraints)
+      )
+      .join(", ");
+    return { errors: errorMessage, input: input };
+  }
+  return { errors: false, input: input };
+};
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->

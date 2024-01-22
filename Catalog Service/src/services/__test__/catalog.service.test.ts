@@ -4,13 +4,7 @@ import { MockCatalogRepository } from "../../repository/mockCatalog.repository";
 import { CatalotService } from "../catalog.service";
 import { Product } from "../../models/product.model";
 import { Factory } from "rosie";
-
-const productFactory = new Factory<Product>()
-  .attr("id", faker.number.int({ min: 10, max: 1000 }))
-  .attr("name", faker.commerce.productName())
-  .attr("description", faker.commerce.productDescription())
-  .attr("price", +faker.commerce.price())
-  .attr("stock", faker.number.int({ min: 1, max: 100 }));
+import { ProductFactory } from "../../utils/fixtures";
 
 const mockProduct = (reset: any) => {
   return {
@@ -104,7 +98,7 @@ describe("catalogService", () => {
     test("should get products by offset and limit", async () => {
       const service = new CatalotService(repository);
       const randomLimit = faker.number.int({ min: 10, max: 50 });
-      const mockProducts = productFactory.buildList(randomLimit);
+      const mockProducts = ProductFactory.buildList(randomLimit);
 
       jest
         .spyOn(repository, "find")
@@ -131,7 +125,7 @@ describe("catalogService", () => {
   describe("getProduct", () => {
     test("should get products by id", async () => {
       const service = new CatalotService(repository);
-      const mockProduct = productFactory.build();
+      const mockProduct = ProductFactory.build();
 
       jest
         .spyOn(repository, "findOne")
@@ -145,7 +139,7 @@ describe("catalogService", () => {
   describe("deleteProduct", () => {
     test("should delete products by id", async () => {
       const service = new CatalotService(repository);
-      const mockProduct = productFactory.build();
+      const mockProduct = ProductFactory.build();
 
       jest
         .spyOn(repository, "delete")
