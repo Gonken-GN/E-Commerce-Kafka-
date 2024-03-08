@@ -1,20 +1,37 @@
+import { PrismaClient } from "@prisma/client";
 import { ICatalogRepository } from "../interface/catalogRepository.interface";
 import { Product } from "../models/product.model";
 
 export class CatalogRepository implements ICatalogRepository {
-  create(data: Product): Promise<Product> {
-    throw new Error("Method not implemented.");
+  _prisma: PrismaClient;
+  constructor() {
+    this._prisma = new PrismaClient();
   }
-  update(data: Product): Promise<Product> {
-    throw new Error("Method not implemented.");
+  async create(data: Product): Promise<Product> {
+    return this._prisma.product.create({
+      data,
+    });
   }
-  delete(id: any) {
-    throw new Error("Method not implemented.");
+  async update(data: Product): Promise<Product> {
+    return this._prisma.product.update({
+      where: { id: data.id },
+      data,
+    });
   }
-  find(): Promise<Product[]> {
-    throw new Error("Method not implemented.");
+  async delete(id: any) {
+    return this._prisma.product.delete({ where: { id } });
   }
-  findOne(id: number): Promise<Product> {
-    throw new Error("Method not implemented.");
+  async find(limit: number, offset: number): Promise<Product[]> {
+    return this._prisma.product.findMany({
+      take: limit,
+      skip: offset,
+    });
+  }
+  async findOne(id: number): Promise<Product> {
+    const product = await this._prisma.product.findFirst({ where: { id } });
+    if (product) {
+      return product;
+    }
+    throw new Error("Product not found");
   }
 }
