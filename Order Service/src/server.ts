@@ -1,7 +1,7 @@
 import app from "./express";
 import * as dotenv from "dotenv";
 dotenv.config();
-const PORT = process.env.PORT || 9000;
+const PORT = process.env.APP_PORT || 9000;
 export const StartServer = async () => {
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
