@@ -1,16 +1,17 @@
 import app from "./express";
 import * as dotenv from "dotenv";
+import { logger } from "./utils";
 dotenv.config();
 const PORT = process.env.APP_PORT || 9000;
 export const StartServer = async () => {
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-    });
+  app.listen(PORT, () => {
+    logger.info(`Server is running on port ${PORT}`);
+  });
 
-    process.on("uncaughtException", async (err) => {
-        console.log(err);
-        process.exit(1);
-    });
+  process.on("uncaughtException", async (err) => {
+    logger.error(err);
+    process.exit(1);
+  });
 };
 
-StartServer().then(() => console.log("Server started"));
+StartServer().then(() => logger.info("Server started"));
