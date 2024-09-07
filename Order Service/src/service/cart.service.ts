@@ -20,7 +20,7 @@ export const createCart = async (
     price: product.price.toString(),
     qty: input.qty,
     itemName: product.name,
-    variant: product.variant,
+    variant: "TEST",
   } as CartLineItem);
 };
 

@@ -45,7 +45,7 @@ router.post(
 );
 
 router.get(
-  "/cart/:id",
+  "/cart",
   async (req: Request, res: Response, next: NextFunction) => {
     // come from auth user parsed from jwt token
     const response = await service.getCart(req.body.customerId, repo);
@@ -60,7 +60,7 @@ router.patch(
     const response = await service.updateCart(
       {
         id: lineItemId,
-        qty: req.body.qty,
+        qty: req.body.quantity,
       },
       repo
     );

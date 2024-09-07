@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { DB } from "../db/db.connection";
 import { Cart, CartLineItem, cartLineItems, carts } from "../db/schema";
-import { NotFoundError } from "../utils";
+import { logger, NotFoundError } from "../utils";
 
 export type CartRepositoryType = {
   createCart: (customerId: number, lineItem: CartLineItem) => Promise<number>;
@@ -15,6 +15,7 @@ const createCart = async (
   customerId: number,
   { itemName, price, productId, qty, variant }: CartLineItem
 ): Promise<number> => {
+  console.log(customerId, itemName, price, productId, qty, variant);
   const result = await DB.insert(carts)
     .values({
       customerId,
@@ -64,7 +65,6 @@ const updateCart = async (id: number, qty: number): Promise<CartLineItem> => {
     })
     .where(eq(cartLineItems.id, id))
     .returning();
-
   return cartLineItem;
 };
 
