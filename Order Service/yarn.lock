@@ -2775,6 +2775,11 @@ jsv@^1.0.0:
   resolved "https://registry.yarnpkg.com/jsv/-/jsv-1.0.0.tgz#eb85474c7e3417a165e1e568349dd662f5ee6471"
   integrity sha512-0x6My50qvmZ/BJ8U2VsSzaUJBaBFzCH1OFMgRc7p1j0txo5J7Gi161PkC4vDnCo8SNDawEvCM6F3Mn7axJLK6A==
 
+kafkajs@^2.2.4:
+  version "2.2.4"
+  resolved "https://registry.yarnpkg.com/kafkajs/-/kafkajs-2.2.4.tgz#59e6e16459d87fdf8b64be73970ed5aa42370a5b"
+  integrity sha512-j/YeapB1vfPT2iOIUn/vxdyKEuhuY2PxMBvf5JWux6iSaukAccrMtXEY/Lb7OvavDhOWME589bpLrEdnVHjfjA==
+
 kleur@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
