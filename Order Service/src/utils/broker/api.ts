@@ -7,7 +7,8 @@ import { User } from "../../dto/user.model";
 const CATALOG_BASE_URL =
   process.env.CATALOG_BASE_URL || "http://localhost:9001";
 
-const AUTH_SERVICE_BASE_URL = process.env.AUTH_SERVICE_BASE_URL || "http://localhost:9000";
+const AUTH_SERVICE_BASE_URL =
+  process.env.AUTH_SERVICE_BASE_URL || "http://localhost:9000";
 
 export const GetproductDetails = async (productId: number) => {
   try {
@@ -21,6 +22,17 @@ export const GetproductDetails = async (productId: number) => {
   }
 };
 
+export const GetStockDetails = async (ids: number[]) => {
+  try {
+    const response = await axios.post(`${CATALOG_BASE_URL}/products/stock`, {
+      ids,
+    });
+    return response.data as Product[];
+  } catch (error) {
+    logger.error(error);
+    throw new APIError("Error while fetching stock details");
+  }
+};
 
 export const ValidateUser = async (token: string) => {
   try {
@@ -28,7 +40,7 @@ export const ValidateUser = async (token: string) => {
     const response = await axios.get(`${AUTH_SERVICE_BASE_URL}/validate`, {
       headers: {
         Authorization: token,
-      }
+      },
     });
 
     if (response.status !== 200) {
@@ -39,6 +51,5 @@ export const ValidateUser = async (token: string) => {
   } catch (error) {
     logger.error(error);
     throw new APIError("Error while validating user");
-    
   }
-}
+};

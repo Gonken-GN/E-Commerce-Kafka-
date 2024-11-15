@@ -13,6 +13,12 @@ router.post(
   RequestAuthorizer,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const user = req.user;
+
+      if (!user) {
+        next(new Error("User not found in request"));
+        return;
+      }
       const error = ValidateRequest<CartRequestInput>(
         req.body,
         CartRequestSchema
@@ -21,8 +27,10 @@ router.post(
       if (error) {
         return res.status(404).json({ error });
       }
+
+      const input: CartRequestInput = req.body;
       const response = await service.createCart(
-        req.body as CartRequestInput,
+        { ...input, customerId: user.id },
         repo
       );
       return res.status(200).json(response);
@@ -32,25 +40,47 @@ router.post(
   }
 );
 
-router.get("/cart", async (req: Request, res: Response, next: NextFunction) => {
-  // come from auth user parsed from jwt token
-  const response = await service.getCart(req.body.customerId, repo);
-  return res.status(200).json(response);
-});
+router.get(
+  "/cart",
+  RequestAuthorizer,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        next(new Error("User not found in request"));
+        return;
+      }
+      const response = await service.getCart(user.id, repo);
+      return res.status(200).json(response);
+    } catch (error) {
+      return res.status(404).json({ error });
+    }
+  }
+);
 
 router.patch(
   "/cart/:lineItemId",
   RequestAuthorizer,
   async (req: Request, res: Response, next: NextFunction) => {
-    const lineItemId = parseInt(req.params.lineItemId);
-    const response = await service.updateCart(
-      {
-        id: +lineItemId,
-        qty: req.body.quantity,
-      },
-      repo
-    );
-    return res.status(200).json(response);
+    try {
+      const user = req.user;
+      if (!user) {
+        next(new Error("User not found in request"));
+        return;
+      }
+      const lineItemId = parseInt(req.params.lineItemId);
+      const response = await service.updateCart(
+        {
+          id: +lineItemId,
+          qty: req.body.quantity,
+          customerId: user.id,
+        },
+        repo
+      );
+      return res.status(200).json(response);
+    } catch (error) {
+      return res.status(404).json({ error });
+    }
   }
 );
 
@@ -58,9 +88,21 @@ router.delete(
   "/cart/:lineItemId",
   RequestAuthorizer,
   async (req: Request, res: Response, next: NextFunction) => {
-    const lineItemId = parseInt(req.params.lineItemId);
-    const response = await service.deleteCart(lineItemId, repo);
-    return res.status(200).json(response);
+    try {
+      const user = req.user;
+      if (!user) {
+        next(new Error("User not found in request"));
+        return;
+      }
+      const lineItemId = parseInt(req.params.lineItemId);
+      const response = await service.deleteCart(
+        { customerId: user.id, id: lineItemId },
+        repo
+      );
+      return res.status(200).json(response);
+    } catch (error) {
+      return res.status(404).json({ error });
+    }
   }
 );
 export default router;
