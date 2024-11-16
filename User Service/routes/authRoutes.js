@@ -1,13 +1,14 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const db = require("../db");
+const db = require("../db/db");
 
 require("dotenv").config();
 
 const router = express.Router();
 
 const generateToken = (user) => {
+  console.log(process.env.JWT_EXPIRES_IN)
   return jwt.sign(user, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
@@ -16,38 +17,38 @@ const generateToken = (user) => {
 router.post("/register", async (req, res) => {
   const { username, email, password } = req.body;
 
-  const userExist = await db.query("SELECT * FROM users WHERE email = $1", [
+  const userExists = await db.query("SELECT * FROM users WHERE email = $1", [
     email,
   ]);
 
-  if (userExist.rows.length > 0) {
-    return res.status(400).send("User already exists");
+  if (userExists.rows.length > 0) {
+    return res.status(400).json({ message: "User already exists" });
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await db.query(
+
+  const newUser = await db.query(
     "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *",
     [username, email, hashedPassword]
   );
 
-  return res.status(201).send({
-    id: user.rows[0].id,
-    username: user.rows[0].username,
-    email: user.rows[0].email,
-  });
+  return res
+    .status(201)
+    .json({ message: "User created", user: newUser.rows[0] });
 });
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
+
   const user = await db.query("SELECT * FROM users WHERE email = $1", [email]);
 
   if (user.rows.length === 0) {
-    return res.status(400).send("Invalid email or password");
+    return res.status(404).json({ message: "User not found" });
   }
 
   const validPassword = await bcrypt.compare(password, user.rows[0].password);
   if (!validPassword) {
-    return res.status(400).send("Invalid email or password");
+    return res.status(400).json({ message: "Invalid password" });
   }
 
   const token = generateToken({
@@ -55,7 +56,7 @@ router.post("/login", async (req, res) => {
     email: user.rows[0].email,
   });
 
-  return res.status(200).send({ token });
+  return res.status(200).json({ message: "Login successful", token });
 });
 
 router.get("/validate", async (req, res) => {
@@ -71,3 +72,5 @@ router.get("/validate", async (req, res) => {
     return res.status(401).send("Unauthorized");
   }
 });
+
+module.exports = router;

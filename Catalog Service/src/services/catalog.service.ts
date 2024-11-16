@@ -39,4 +39,11 @@ export class CatalotService {
     // delete record from elastic search
     return response;
   }
+
+  async getProductStock(ids: number[]) {
+    const products = await this.repository.findStock(ids);
+    if (!products) {
+      throw new Error("unable to get stock");
+    }
+  }
 }

@@ -7,13 +7,14 @@ export const RequestAuthorizer = async (
   next: NextFunction
 ) => {
   try {
+    console.log("RequestAuthorizer ", req.headers.authorization);
     if (!req.headers.authorization) {
-      return res.status(401).send("Unauthorized");
+      return res.status(403).json({ error: "Unauthorized" }); 
     }
     const data = await ValidateUser(req.headers.authorization as string);
     req.user = data;
     next();
   } catch (error) {
-    return res.status(403).send("Unauthorized");
+    return res.status(403).json({ error: "Unauthorized" });
   }
 };

@@ -8,6 +8,7 @@ export class CatalogRepository implements ICatalogRepository {
   constructor() {
     this._prisma = new PrismaClient();
   }
+
   async create(data: Product): Promise<Product> {
     return this._prisma.product.create({
       data,
@@ -34,5 +35,14 @@ export class CatalogRepository implements ICatalogRepository {
       return product;
     }
     throw new NotFoundError("Product not found");
+  }
+  async findStock(ids: number[]): Promise<Product[]> {
+    return this._prisma.product.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
   }
 }
