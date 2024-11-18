@@ -53,7 +53,7 @@ export const getCart = async (id: number, repo: CartRepositoryType) => {
     lineItems.forEach((item) => {
       const stock = stockDetails.find((stock) => stock.id === item.productId);
       if (stock) {
-        item.availability = stock.stock > 0;
+        item.availability = stock.stock;
       }
     });
 

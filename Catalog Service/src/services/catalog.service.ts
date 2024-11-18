@@ -45,5 +45,6 @@ export class CatalotService {
     if (!products) {
       throw new Error("unable to get stock");
     }
+    return products;
   }
 }

@@ -89,11 +89,12 @@ router.delete(
   }
 );
 
+// Add POST /products/stock
 router.post(
   "/products/stock",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await catalogService.getProductStock(req.body);
+      const data = await catalogService.getProductStock(req.body.ids);
       return res.status(200).json(data);
     } catch (error) {
       const err = error as Error;

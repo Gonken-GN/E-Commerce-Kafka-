@@ -21,7 +21,7 @@ type CartLineItem = {
   price: string;
   qty: number;
   variant: string | null;
-  availability?: boolean;
+  availability?: number;
   createdAt: Date;
   updatedAt: Date;
 }
