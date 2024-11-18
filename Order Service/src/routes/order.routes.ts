@@ -1,53 +1,82 @@
 import express, { NextFunction, Request, Response } from "express";
-import * as service from "../service/order.service";
 import { MessageBroker } from "../utils/broker";
 import { OrderEvent } from "../types";
+import { RequestAuthorizer } from "./middleware";
+import * as service from "../service/order.service";
+import { OrderRepository } from "../repository/order.repository";
+import { CartRepository } from "../repository/cart.repository";
 
+const repo = OrderRepository;
+const cartRepo = CartRepository;
 const router = express.Router();
 
 router.post(
-  "/order",
+  "/orders",
+  RequestAuthorizer,
   async (req: Request, res: Response, next: NextFunction) => {
-    //  3rd step: publish the message
-    // await MessageBroker.publish({
-    //   topic: "OrderEvents",
-    //   headers: { token: req.headers.authorization },
-    //   event: OrderEvent.CREATE_ORDER,
-    //   message: {
-    //     orderId: 1,
-    //     items: [
-    //       {
-    //         productId: 1,
-    //         quantity: 2,
-    //       },
-    //       {
-    //         productId: 2,
-    //         quantity: 3,
-    //       },
-    //     ],
-    //   },
-    // });
-    return res.status(200).json({ message: "Order created" });
+    const user = req.user;
+    if (!user) {
+      next(new Error("User not found"));
+      return;
+    }
+
+    const response = await service.createOrder(user.id, repo, cartRepo);
+    return res.status(200).json(response);
   }
 );
 
 router.get(
-  "/order/:id",
+  "/orders/:id",
+  RequestAuthorizer,
   async (req: Request, res: Response, next: NextFunction) => {
-    return res.status(200).json({ message: "Order found" });
+    const user = req.user;
+    if (!user) {
+      next(new Error("User not found"));
+      return;
+    }
+
+    const response = await service.getOrders(user.id, repo);
+    return res.status(200).json(response);
   }
 );
 
 router.get(
   "/orders",
+  RequestAuthorizer,
   async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+    if (!user) {
+      next(new Error("User not found"));
+      return;
+    }
+
+    const response = await service.getOrders(user.id, repo);
+    return res.status(200).json({ message: "Orders found" });
+  }
+);
+
+router.patch(
+  "/orders/:id",
+  async (req: Request, res: Response, next: NextFunction) => {
+    const orderId = parseInt(req.params.id);
+    const status = req.body.status;
+    const response = await service.updateOrder(orderId, status, repo);
     return res.status(200).json({ message: "Orders found" });
   }
 );
 
 router.delete(
-  "/order/:id",
+  "/orders/:id",
+  RequestAuthorizer,
   async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+    if (!user) {
+      next(new Error("User not found"));
+      return;
+    }
+
+    const orderId = parseInt(req.params.id);
+    const response = await service.deleteOrder(orderId, repo);
     return res.status(200).json({ message: "Order deleted" });
   }
 );
