@@ -5,6 +5,7 @@ import { RequestAuthorizer } from "./middleware";
 import * as service from "../service/order.service";
 import { OrderRepository } from "../repository/order.repository";
 import { CartRepository } from "../repository/cart.repository";
+import { OrderStatus } from "../types/order.type";
 
 const repo = OrderRepository;
 const cartRepo = CartRepository;
@@ -59,7 +60,7 @@ router.patch(
   "/orders/:id",
   async (req: Request, res: Response, next: NextFunction) => {
     const orderId = parseInt(req.params.id);
-    const status = req.body.status;
+    const status = req.body.status as OrderStatus;
     const response = await service.updateOrder(orderId, status, repo);
     return res.status(200).json({ message: "Orders found" });
   }
