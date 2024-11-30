@@ -1,6 +1,7 @@
 import { OrderLineItemType, OrderWithLineItems } from "../dto/orderRequest.dto";
 import { CartRepositoryType } from "../repository/cart.repository";
 import { OrderRepositoryType } from "../repository/order.repository";
+import { MessageType } from "../types";
 import { OrderStatus } from "../types/order.type";
 
 export const createOrder = async (
@@ -84,4 +85,6 @@ export const deleteOrder = async (
   return true;
 };
 
-export const handleSubscription = async (message: any) => {};
+export const handleSubscription = async (message: MessageType) => {
+  console.log("Message recieved by order kafka consumer", message);
+};
