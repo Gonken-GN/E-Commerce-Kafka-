@@ -11,10 +11,10 @@ import {
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
   orderNumber: integer("order_number").notNull().unique(),
-  customerIrd: integer("customer_id").notNull(),
+  customerId: integer("customer_id").notNull(),
   amount: numeric("amount").notNull(),
-  status: varchar("status").notNull(),
-  txnId: varchar("txn_id").notNull(),
+  status: varchar("status").notNull().default("PENDING"),
+  txnId: varchar("txn_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

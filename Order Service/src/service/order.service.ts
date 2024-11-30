@@ -69,7 +69,7 @@ export const getOrder = async (orderId: number, repo: OrderRepositoryType) => {
 
 export const getOrders = async (userId: number, repo: OrderRepositoryType) => {
   const orders = await repo.findOrderByCustomerId(userId);
-  if (!orders.length) {
+  if (!Array.isArray(orders) || orders.length === 0) {
     throw new Error("Orders not found");
   }
 
